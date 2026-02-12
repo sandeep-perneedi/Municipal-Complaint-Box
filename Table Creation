@@ -1,0 +1,212 @@
+create database municipal_complaint_box;
+use municipal_complaint_box;
+
+
+
+--  Citizen Table
+CREATE TABLE Citizen (
+    CitizenID INT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Address VARCHAR(255),
+    ContactNumber VARCHAR(15)
+);
+INSERT INTO Citizen (CitizenID, Name, Address, ContactNumber) VALUES
+(1001, 'John Doe', '123 Main St', '555-1111'),
+(1002, 'Jane Smith', '456 Oak Ave', '555-2222'),
+(1003, 'Alice Johnson', '789 Elm Blvd', '555-3333');
+
+
+--  ComplaintStatus Table
+CREATE TABLE ComplaintStatus (
+    Status VARCHAR(50) PRIMARY KEY,
+    DefaultPriority VARCHAR(50)
+);
+INSERT INTO ComplaintStatus (Status, DefaultPriority) VALUES
+('Open', 'High'),
+('In Progress', 'Medium'),
+('Closed', 'Low'),
+('Pending', 'Medium');
+
+
+
+--  Complaint Table
+CREATE TABLE Complaint (
+    ComplaintID INT PRIMARY KEY auto_increment,
+    Description TEXT,
+    Date DATE,
+    Status VARCHAR(50),
+    FOREIGN KEY (Status) REFERENCES ComplaintStatus(Status)
+);
+
+INSERT INTO Complaint (ComplaintID, Description, Date, Status) VALUES
+(2001, 'Street Light Outage', '2024-03-01', 'Open'),
+(2002, 'Pothole Repair', '2024-03-02', 'In Progress'),
+(2003, 'Trash Collection Issue', '2024-03-03', 'Closed'),
+(2004, 'Water Leak', '2024-03-04', 'Open');
+
+CREATE TABLE ComplaintCategory ( 
+CategoryID INT PRIMARY KEY, 
+CategoryName VARCHAR(255), 
+Description TEXT 
+); 
+INSERT INTO ComplaintCategory VALUES 
+(6001, 'Infrastructure', 'Issues related to city infrastructure'),
+(6002, 'Environmental', 'Environmental concerns and violations'),
+(6003, 'Public Safety', 'Safety hazards and concerns'),
+(6004, 'Utilities', 'Problems with water, electricity, etc.'),
+(6005, 'Noise and Nuisance', 'Complaints related to noise and disturbances');
+
+
+--  Employee Table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Designation VARCHAR(255),
+    ContactNumber VARCHAR(15),
+    FOREIGN KEY (Designation) REFERENCES DesignationInfo(Designation),
+    FOREIGN KEY (ContactNumber) REFERENCES ContactDirectory(ContactNumber)
+);
+INSERT INTO Employee (EmployeeID, Name, Designation, ContactNumber) VALUES
+(3001, 'Michael Scott', 'Manager', '555-4444'),
+(3002, 'Dwight Schrute', 'Technician', '555-5555'),
+(3003, 'Pam Beesly', 'Inspector', '555-6666');
+
+
+--  DesignationInfo Table
+CREATE TABLE DesignationInfo (
+    Designation VARCHAR(255) PRIMARY KEY,
+    Department VARCHAR(255)
+);
+INSERT INTO DesignationInfo (Designation, Department) VALUES
+('Manager', 'Public Works'),
+('Technician', 'Sanitation'),
+('Inspector', 'Water Department');
+
+
+--  ContactDirectory Table
+CREATE TABLE ContactDirectory (
+    ContactNumber VARCHAR(15) PRIMARY KEY,
+    Email VARCHAR(255)
+);
+INSERT INTO ContactDirectory (ContactNumber, Email) VALUES
+('555-4444', 'manager@example.com'),
+('555-5555', 'tech@example.com'),
+('555-6666', 'inspector@example.com');
+
+ 
+ CREATE TABLE Department ( 
+DepartmentID INT PRIMARY KEY, DepartmentName VARCHAR(255), 
+Description TEXT, 
+ContactNumber VARCHAR(15)
+); 
+
+INSERT INTO Department VALUES 
+(4001, 'Public Works', 'Responsible for city infrastructure', '555-1000'),
+(4002, 'Sanitation', 'Handles waste collection and disposal', '555-2000'),
+(4003, 'Water Department', 'Manages water supply and distribution', '555-3000'),
+(4004, 'Parks and Recreation', 'Maintains parks and recreational facilities', '555-4000'),
+(4005, 'Street Maintenance', 'Responsible for road maintenance', '555-5000');
+--  Location Table
+CREATE TABLE Location (
+    LocationID INT PRIMARY KEY,
+    LocationName VARCHAR(255),
+    Description TEXT
+);
+INSERT INTO Location (LocationID, LocationName, Description) VALUES
+(5001, 'City Center', 'Main commercial hub'),
+(5002, 'Residential Zone', 'Family housing area'),
+(5003, 'Industrial Area', 'Factories and warehouses');
+
+--  LocationDirectory Table
+CREATE TABLE LocationDirectory (
+    LocationName VARCHAR(255) PRIMARY KEY,
+    Address VARCHAR(255)
+);
+INSERT INTO LocationDirectory (LocationName, Address) VALUES
+('City Center', '101 Main Plaza'),
+('Residential Zone', '204 Sunset Blvd'),
+('Industrial Area', '88 Factory Road');
+
+
+CREATE TABLE Feedback ( 
+FeedbackID INT PRIMARY KEY, 
+Comment TEXT, 
+Rating INT, 
+Date DATE 
+); 
+INSERT INTO Feedback VALUES 
+(7001, 'Great service!', 5, '2024-03-01'),
+(7002, 'Could improve response time', 3, '2024-03-02'),
+(7003, 'Very satisfied with the resolution', 4, '2024-03-03'),
+(7004, 'Friendly staff', 5, '2024-03-04'),
+(7005, 'Average experience', 2, '2024-03-05');
+
+ 
+
+
+CREATE TABLE Response ( 
+ResponseID INT PRIMARY KEY, 
+Text TEXT,
+Date DATE 
+);
+INSERT INTO Response VALUES 
+(8001, 'Thank you for your feedback. We are glad you had a positive experience.', '2024-03-01'),
+(8002, 'We apologize for any inconvenience. We will work on improving our response time.', '2024-03-02'),
+(8003, 'We appreciate your feedback. If you have any further concerns, please let us know.', '2024-03-03'),
+(8004, 'Glad to hear that you had a positive interaction with our staff.', '2024-03-04'),
+(8005, 'We will take your feedback into consideration to enhance our services.', '2024-03-05');
+
+
+
+-- Ticket Table (New Table for Ticketing System)
+CREATE TABLE Ticket (
+    TicketID INT PRIMARY KEY AUTO_INCREMENT,
+    ComplaintID INT,
+    AssignedEmployeeID INT,
+    ResolutionStatus VARCHAR(50),
+    ResolutionDate DATE,
+    FOREIGN KEY (ComplaintID) REFERENCES Complaint(ComplaintID),
+    FOREIGN KEY (AssignedEmployeeID) REFERENCES Employee(EmployeeID)
+);
+INSERT INTO Ticket (TicketID, ComplaintID, AssignedEmployeeID, ResolutionStatus, ResolutionDate)
+VALUES 
+(1, 2001, 3001, 'Open', NULL),
+(2, 2002, 3002, 'Pending', NULL),
+(3, 2003, 3003, 'Resolved', '2024-03-04');
+
+
+
+
+-- Ticket Updates Table to Track Actions on Tickets
+CREATE TABLE TicketUpdates (
+    UpdateID INT PRIMARY KEY AUTO_INCREMENT,
+    TicketID INT,
+    UpdateText TEXT,
+    UpdateDate DATE,
+    UpdatedByEmployeeID INT,
+    Status VARCHAR(50),
+    FOREIGN KEY (TicketID) REFERENCES Ticket(TicketID),
+    FOREIGN KEY (UpdatedByEmployeeID) REFERENCES Employee(EmployeeID)
+);
+INSERT INTO TicketUpdates (TicketID, UpdateText, UpdateDate, UpdatedByEmployeeID, Status) VALUES
+(1, 'Technician assigned & site inspection scheduled.', '2024-03-02', 3001, 'Open'),
+(2, 'Technician dispatched to location.', '2024-03-03', 3002, 'In Progress'),
+(3, 'Initial assessment completed by supervisor.', '2024-03-04', 3002, 'Pending');
+
+
+
+
+SELECT * FROM Citizen;
+SELECT * FROM Complaint;
+SELECT * FROM Employee;
+SELECT * FROM Department ;
+SELECT * FROM Location;
+SELECT * FROM ComplaintCategory;
+SELECT * FROM Feedback;
+SELECT * FROM ticket;
+SELECT * FROM response;
+SELECT * FROM TicketUpdates;
+select * from complaintstatus;
+select * from  DesignationInfo;
+select * from LocationDirectory;
+select * from ContactDirectory;
