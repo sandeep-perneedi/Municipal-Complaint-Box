@@ -1,0 +1,18 @@
+-- trigger
+DELIMITER $$
+
+CREATE TRIGGER trg_update_ticket_status
+AFTER INSERT ON TicketUpdates
+FOR EACH ROW
+BEGIN
+    UPDATE Ticket
+    SET ResolutionStatus = NEW.Status
+    WHERE TicketID = NEW.TicketID;
+END$$
+
+DELIMITER ;
+
+
+INSERT INTO TicketUpdates (TicketID, UpdateText, UpdateDate, UpdatedByEmployeeID, Status)
+VALUES (7, 'Final fix completed and verified.', '2024-03-10', 3002, 'Closed');
++
