@@ -1,0 +1,25 @@
+-- function
+DELIMITER $$
+
+CREATE FUNCTION GetComplaintPriorityLabel(p_Priority VARCHAR(50))
+RETURNS VARCHAR(100)
+DETERMINISTIC
+BEGIN
+    DECLARE v_Label VARCHAR(100);
+
+    IF p_Priority = 'High' THEN
+        SET v_Label = '⚠ Urgent - Immediate Attention Required';
+    ELSEIF p_Priority = 'Medium' THEN
+        SET v_Label = '⏳ Moderate - Needs Timely Resolution';
+    ELSEIF p_Priority = 'Low' THEN
+        SET v_Label = '📋 Low - Can Be Scheduled';
+    ELSE
+        SET v_Label = 'Unknown Priority';
+    END IF;
+
+    RETURN v_Label;
+END$$
+
+DELIMITER ;
+ 
+SELECT GetComplaintPriorityLabel('Open');
