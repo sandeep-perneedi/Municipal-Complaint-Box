@@ -1,0 +1,27 @@
+-- stored prosedure
+DELIMITER //
+
+CREATE PROCEDURE GetComplaintPriorityByID(
+    IN in_ComplaintID INT
+)
+BEGIN
+    DECLARE compStatus VARCHAR(50);
+    DECLARE compPriority VARCHAR(50);
+
+    -- Get the complaint's status
+    SELECT Status INTO compStatus
+    FROM Complaint
+    WHERE ComplaintID = in_ComplaintID;
+
+    -- Get the corresponding priority from ComplaintStatus
+    SELECT DefaultPriority INTO compPriority
+    FROM ComplaintStatus
+    WHERE Status = compStatus;
+
+    -- Return the result
+    SELECT compPriority AS Priority;
+END //
+
+DELIMITER ;
+
+CALL GetComplaintPriorityByID(3001);
