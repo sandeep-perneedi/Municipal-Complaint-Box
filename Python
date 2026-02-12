@@ -1,0 +1,65 @@
+from flask import Flask, render_template, request, redirect
+import mysql.connector
+
+app = Flask(__name__)
+
+# Database connection
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="Mamun@1314",  # Your password
+    database="municipal_complaint_box"
+)
+
+# Home Page
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+# Complaints Page
+@app.route('/complaints')
+def complaints():
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Complaint")
+    data = cursor.fetchall()
+    return render_template("complaints.html", complaints=data)
+
+# Tickets Page
+@app.route('/tickets')
+def tickets():
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Ticket")
+    data = cursor.fetchall()
+    return render_template("ticket_status.html", tickets=data)
+
+# Complaint submission page (GET method)
+@app.route('/new_complaint')
+def new_complaint():
+    return render_template("new_complaint.html")
+
+# Complaint form handler (POST method)
+@app.route('/submit_complaint', methods=['POST'])
+def submit_complaint():
+    description = request.form['description']
+    date = request.form['date']
+    status = 'Open'  # default status
+
+    cursor = db.cursor()
+
+    # Insert into Complaint table
+    cursor.execute("INSERT INTO Complaint (Description, Date, Status) VALUES (%s, %s, %s)", (description, date, status))
+    db.commit()
+
+    # Get the newly inserted Complaint ID
+    complaint_id = cursor.lastrowid
+
+    # Assign employee with ID 3001 (default) and insert into Ticket table
+    cursor.execute("INSERT INTO Ticket (ComplaintID, AssignedEmployeeID, ResolutionStatus, ResolutionDate) VALUES (%s, %s, %s, %s)",
+                   (complaint_id, 3001, 'Open', None))
+    db.commit()
+
+    return redirect('/complaints')
+
+# Run the app
+if __name__ == '__main__':
+    app.run(debug=True, host='127.0.0.1', port=5000)
