@@ -1,0 +1,26 @@
+-- cursor
+DELIMITER $$
+
+CREATE PROCEDURE ShowComplaints()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE complaint_text TEXT;
+
+    DECLARE c CURSOR FOR
+        SELECT Description FROM Complaint;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    OPEN c;
+
+    read_loop: LOOP
+        FETCH c INTO complaint_text;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        SELECT complaint_text;
+    END LOOP;
+    CLOSE c;
+END$$
+DELIMITER ;
+
+CALL ShowComplaints();
